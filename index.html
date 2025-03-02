@@ -21,14 +21,14 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #6f42c1; /* Cor roxa para o título */
+            color: #6f42c1;
             font-size: 28px;
             margin-bottom: 20px;
         }
         .total {
             font-size: 24px;
             font-weight: bold;
-            color: #007bff; /* Cor azul para o total */
+            color: #007bff;
             margin-bottom: 15px;
         }
         .items-container {
@@ -37,34 +37,36 @@
         }
         .item {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             margin: 10px 0;
             padding: 10px;
-            background: #e0f7fa; /* Azul suave para os itens */
+            background: #e0f7fa;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 20px;
         }
-        .item-name {
+        .item-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
             font-weight: bold;
-            color: #007bff; /* Azul mais forte para o nome do item */
-            flex: 2;
-        }
-        .item-price {
-            color: #dc3545; /* Vermelho para o preço */
-            flex: 1;
+            color: #007bff;
         }
         .quantity-container {
             display: flex;
             align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
         }
         .quantity-container button {
-            padding: 5px 10px;
-            font-size: 18px;
+            padding: 15px 15px;
+            font-size: 16px;
             cursor: pointer;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             transition: 0.3s;
+            width: 70px;
         }
         .add-btn {
             background-color: #007bff;
@@ -76,11 +78,9 @@
         }
         .subtotal {
             font-size: 16px;
-            color: #28a745; /* Verde para o subtotal */
+            color: #28a745;
             font-weight: bold;
-            text-align: right;
-            margin-left: auto;
-            flex: 1;
+            margin-top: 5px;
         }
         .buttons-container {
             display: flex;
@@ -89,7 +89,7 @@
             gap: 10px;
         }
         .save-btn, .reset-btn, .view-btn {
-            background-color: #6f42c1; /* Cor roxa para os botões */
+            background-color: #6f42c1;
             color: white;
             width: 100%;
             margin-top: 10px;
@@ -126,18 +126,10 @@
             h1 {
                 font-size: 24px;
             }
-            .item-name {
-                font-size: 14px;
-            }
-            .item-price {
-                font-size: 14px;
-            }
-            .subtotal {
-                font-size: 14px;
-            }
             .quantity-container button {
-                font-size: 16px;
-                padding: 5px 8px;
+                font-size: 14px;
+                padding: 8px;
+                width: 45px;
             }
         }
     </style>
@@ -148,9 +140,7 @@
         <h1>Margareth Feira</h1>
         <p class="total">Total: R$ <span id="total">0.00</span></p>
 
-        <div class="items-container" id="items-container">
-            <!-- Itens serão gerados aqui -->
-        </div>
+        <div class="items-container" id="items-container"></div>
 
         <button class="save-btn" onclick="saveOrder()">Salvar Comanda</button>
         <button class="reset-btn" onclick="resetCalculator()">Reset</button>
@@ -169,10 +159,8 @@
             "Salgado": { price: 8, count: 0 },
             "Café": { price: 4, count: 0 },
             "Suco": { price: 4, count: 0 },
-            "Pão": { price: 3, count: 0 },
-            "Torta Inteira": { price: 20, count: 0 },
-            "Torta Pedaço": { price: 5, count: 0 },
-            "Kuque": { price: 6, count: 0 }
+            "Pão": { price: 10, count: 0 },
+            "Kuque": { price: 12, count: 0 }
         };
 
         function renderItems() {
@@ -185,8 +173,10 @@
 
                 let subtotal = items[item].count * items[item].price;
                 div.innerHTML = `
-                    <span class="item-name">${item}</span>
-                    <span class="item-price">R$ ${items[item].price.toFixed(2)}</span>
+                    <div class="item-info">
+                        <span>${item}</span>
+                        <span>R$ ${items[item].price.toFixed(2)}</span>
+                    </div>
                     <div class="quantity-container">
                         <button class="remove-btn" onclick="removeItem('${item}')">-</button>
                         <span>${items[item].count}</span>
