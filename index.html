@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Margareth Feira</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #6f42c1; /* Cor roxa para o título */
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff; /* Cor azul para o total */
+            margin-bottom: 15px;
+        }
+        .items-container {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #e0f7fa; /* Azul suave para os itens */
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .item-name {
+            font-weight: bold;
+            color: #007bff; /* Azul mais forte para o nome do item */
+            flex: 2;
+        }
+        .item-price {
+            color: #dc3545; /* Vermelho para o preço */
+            flex: 1;
+        }
+        .quantity-container {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-container button {
+            padding: 5px 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .add-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .subtotal {
+            font-size: 16px;
+            color: #28a745; /* Verde para o subtotal */
+            font-weight: bold;
+            text-align: right;
+            margin-left: auto;
+            flex: 1;
+        }
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .save-btn, .reset-btn, .view-btn {
+            background-color: #6f42c1; /* Cor roxa para os botões */
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .save-btn {
+            background-color: #007bff;
+        }
+        .reset-btn {
+            background-color: #6c757d;
+        }
+        .view-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+        .new-item-container {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .new-item-container input {
+            padding: 5px;
+            margin-right: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 24px;
+            }
+            .item-name {
+                font-size: 14px;
+            }
+            .item-price {
+                font-size: 14px;
+            }
+            .subtotal {
+                font-size: 14px;
+            }
+            .quantity-container button {
+                font-size: 16px;
+                padding: 5px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Margareth Feira</h1>
+        <p class="total">Total: R$ <span id="total">0.00</span></p>
+
+        <div class="items-container" id="items-container">
+            <!-- Itens serão gerados aqui -->
+        </div>
+
+        <button class="save-btn" onclick="saveOrder()">Salvar Comanda</button>
+        <button class="reset-btn" onclick="resetCalculator()">Reset</button>
+        <button class="view-btn" onclick="viewOrders()">Ver Comandas</button>
+
+        <div class="new-item-container">
+            <input type="text" id="new-item-name" placeholder="Nome do item">
+            <input type="number" id="new-item-price" placeholder="Preço">
+            <button class="save-btn" onclick="addNewItem()">Adicionar</button>
+        </div>
+    </div>
+
+    <script>
+        let total = 0;
+        let items = {
+            "Salgado": { price: 8, count: 0 },
+            "Café": { price: 4, count: 0 },
+            "Suco": { price: 4, count: 0 },
+            "Pão": { price: 3, count: 0 },
+            "Torta Inteira": { price: 20, count: 0 },
+            "Torta Pedaço": { price: 5, count: 0 },
+            "Kuque": { price: 6, count: 0 }
+        };
+
+        function renderItems() {
+            const itemsContainer = document.getElementById("items-container");
+            itemsContainer.innerHTML = "";
+
+            Object.keys(items).forEach(item => {
+                let div = document.createElement("div");
+                div.classList.add("item");
+
+                let subtotal = items[item].count * items[item].price;
+                div.innerHTML = `
+                    <span class="item-name">${item}</span>
+                    <span class="item-price">R$ ${items[item].price.toFixed(2)}</span>
+                    <div class="quantity-container">
+                        <button class="remove-btn" onclick="removeItem('${item}')">-</button>
+                        <span>${items[item].count}</span>
+                        <button class="add-btn" onclick="addItem('${item}')">+</button>
+                    </div>
+                    ${items[item].count > 0 ? `<span class="subtotal">Subtotal: R$ ${subtotal.toFixed(2)}</span>` : ''}
+                `;
+                itemsContainer.appendChild(div);
+            });
+        }
+
+        function addItem(item) {
+            items[item].count++;
+            total += items[item].price;
+            updateTotal();
+        }
+
+        function removeItem(item) {
+            if (items[item].count > 0) {
+                items[item].count--;
+                total -= items[item].price;
+                updateTotal();
+            }
+        }
+
+        function resetCalculator() {
+            total = 0;
+            Object.keys(items).forEach(item => items[item].count = 0);
+            updateTotal();
+        }
+
+        function addNewItem() {
+            let name = document.getElementById("new-item-name").value.trim();
+            let price = parseFloat(document.getElementById("new-item-price").value);
+
+            if (name && !isNaN(price) && price > 0) {
+                items[name] = { price: price, count: 0 };
+                renderItems();
+                document.getElementById("new-item-name").value = "";
+                document.getElementById("new-item-price").value = "";
+            } else {
+                alert("Preencha corretamente o nome e preço do item!");
+            }
+        }
+
+        function updateTotal() {
+            document.getElementById("total").innerText = total.toFixed(2);
+            renderItems();
+        }
+
+        function saveOrder() {
+            let order = { items: {}, total: total };
+            Object.keys(items).forEach(item => {
+                if (items[item].count > 0) {
+                    order.items[item] = items[item].count;
+                }
+            });
+
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            orders.push(order);
+            localStorage.setItem("orders", JSON.stringify(orders));
+
+            alert("Comanda salva!");
+            resetCalculator();
+        }
+
+        function viewOrders() {
+            window.location.href = "comandas.html";
+        }
+
+        renderItems();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comandas Salvas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        h1 { color: #007bff; }
+        .order { padding: 10px; background: #f1f1f1; margin: 10px 0; border-radius: 5px; text-align: left; }
+        .btn { background-color: #007bff; color: white; padding: 10px; cursor: pointer; border: none; border-radius: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comandas Salvas</h1>
+        <div id="orders-container"></div>
+        <canvas id="salesChart" width="400" height="200"></canvas>
+        <button class="btn" onclick="saveCSV()">Salvar CSV</button>
+        <button class="btn" onclick="resetOrders()">Resetar Comandas</button>
+        <button class="btn" onclick="goBack()">Voltar</button>
+    </div>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+        const container = document.getElementById("orders-container");
+        let salesData = {};
+
+        // Exibe as comandas salvas e conta as vendas de cada item
+        orders.forEach((order, index) => {
+            let div = document.createElement("div");
+            div.classList.add("order");
+            let itemsText = Object.keys(order.items).map(item => `${item}: ${order.items[item]}`).join(", ");
+            div.innerHTML = `<strong>Comanda ${index + 1}:</strong> ${itemsText} - Total: R$ ${order.total.toFixed(2)}`;
+            container.appendChild(div);
+
+            // Conta a quantidade de vendas por item
+            Object.keys(order.items).forEach(item => {
+                salesData[item] = (salesData[item] || 0) + order.items[item];
+            });
+        });
+
+        // Função para salvar as comandas em CSV
+        function saveCSV() {
+            let csvContent = "Comanda,Itens,Total\n";
+            orders.forEach((order, index) => {
+                let itemsText = Object.keys(order.items).map(item => `${item}: ${order.items[item]}`).join(", ");
+                csvContent += `${index + 1},"${itemsText}",${order.total}\n`;
+            });
+            let blob = new Blob([csvContent], { type: 'text/csv' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "comandas.csv";
+            link.click();
+        }
+
+        // Função para resetar as comandas salvas
+        function resetOrders() {
+            localStorage.removeItem("orders");
+            location.reload();
+        }
+
+        // Função para voltar para a página inicial
+        function goBack() {
+            window.location.href = "index.html";
+        }
+
+        // Gerando o gráfico com os dados das vendas
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(salesData),
+                datasets: [{
+                    label: 'Itens Vendidos',
+                    data: Object.values(salesData),
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { 
+                responsive: true,
+                scales: { 
+                    y: { 
+                        beginAtZero: true 
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
